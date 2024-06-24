@@ -1,0 +1,34 @@
+---
+# tasks file for 2do_parcial
+
+- debug:
+    msg: "Tareas del 2do Parcial"
+
+- name: "Crear estructura de directorios"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  with_items: 
+    - /tmp/2do_parcial/alumno
+    - /tmp/2do_parcial/equipo
+
+- name: "Agregar archivo con datos del alumno"
+  template:
+    src: template_01.j2
+    dest: /tmp/2do_parcial/alumno/datos_alumno.txt
+
+- name: "Agregar archivo con datos del equipo"
+  template:
+    src: template_02.j2
+    dest: /tmp/2do_parcial/equipo/datos_equipo.txt
+
+- name: "Configurar sudoers para grupo 2PSupervisores"
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/2psupervisores
+    content: |
+      %2PSupervisores ALL=(ALL) NOPASSWD: ALL
+    validate: /usr/sbin/visudo -cf %s
+  become_method: sudo
+  become_user: root
